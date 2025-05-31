@@ -1,0 +1,150 @@
+# Azure Developer Certification Suite (.cursorrules)
+# AZ-204 → AZ-400 Learning Path
+
+## Project Mission
+Build a comprehensive microservices application covering all AZ-204 and AZ-400 exam objectives.
+Focus: Production-ready patterns, cost optimization, and DevOps excellence.
+
+## Architecture Principles
+- Microservices with event-driven communication
+- Infrastructure as Code (ARM + Bicep) for everything
+- Security-first approach with Managed Identity
+- Observability built-in from day 1
+- Cost-optimized using Azure free tiers
+
+## Exam-Focused Development Approach
+**CRITICAL: Always provide certification context with every suggestion**
+
+When providing code solutions, architecture advice, or troubleshooting help:
+
+1. **Explain the "Why"**: Connect each implementation to specific AZ-204/AZ-400 exam objectives
+2. **Exam Scenarios**: Mention how this knowledge appears in exam questions or real-world scenarios
+3. **Best Practices**: Highlight certification-preferred approaches vs. alternatives
+4. **Common Pitfalls**: Share typical exam gotchas or misconceptions related to the current topic
+5. **Objective Mapping**: Reference specific exam objective codes when relevant
+
+### Key Exam Topics to Emphasize:
+- **Security**: Always explain Managed Identity vs. connection strings (heavily tested)
+- **Scaling**: Mention consumption vs. premium plans and their implications
+- **Monitoring**: Connect logging patterns to troubleshooting scenarios
+- **Networking**: Explain service communication patterns and security implications
+- **DevOps**: Link implementation to CI/CD best practices and deployment strategies
+
+## Code Style Standards
+### JavaScript/TypeScript
+- Always use ES modules: `import/export` syntax
+- Export patterns: `export const functionName` or `export default ComponentName`
+- Use TypeScript for type safety
+- Prefer functional components with hooks
+- Use proper JSX formatting with self-closing tags
+
+### Python (Azure Functions)
+- Follow PEP 8 style guidelines
+- Use type hints for function parameters and returns
+- Implement proper error handling with try/catch blocks
+- Use logging instead of print statements
+- Structure functions with clear separation of concerns
+
+### Infrastructure Code
+- **Bicep**: Primary choice for new infrastructure
+- **ARM Templates**: Learn for certification and troubleshooting
+- Always include parameter files for different environments
+- Use descriptive resource names following Azure conventions
+- Include proper tags for resource management
+
+## Azure Services Integration Priority
+1. **Foundation**: Functions, Static Web Apps, Cosmos DB, Key Vault
+2. **Production**: API Management, Application Insights, Event Grid  
+3. **Advanced**: Container Apps, AKS, Load Testing
+
+## Security Implementation
+- Use Managed Identity for ALL service-to-service authentication
+- Store ALL secrets in Key Vault (no hardcoded values)
+- Implement RBAC with least-privilege principle
+- Use Private Link for database connections
+- Validate all user inputs and sanitize outputs
+- Implement proper CORS policies
+
+## Development Workflow
+- Create feature branches for all changes
+- Write unit tests before implementing features
+- Use Azure CLI or PowerShell for resource management
+- Document all API endpoints with OpenAPI/Swagger
+- Implement health checks for all services
+- Use semantic versioning for releases
+
+## Error Handling Standards
+- Implement comprehensive try/catch blocks
+- Return consistent error response formats
+- Log errors with appropriate severity levels
+- Include correlation IDs for distributed tracing
+- Provide user-friendly error messages
+- Implement circuit breaker patterns for external calls
+
+## Performance Guidelines
+- Use async/await patterns for all I/O operations
+- Implement caching strategies (Redis, CDN)
+- Optimize database queries with proper indexing
+- Use connection pooling for database connections
+- Implement pagination for large data sets
+- Monitor and optimize cold start times
+
+## Testing Strategy
+### Unit Tests
+- Test all business logic functions
+- Mock external dependencies
+- Achieve >80% code coverage
+- Use descriptive test names
+
+### Integration Tests  
+- Test Azure service interactions
+- Validate API endpoints end-to-end
+- Test authentication flows
+- Verify event-driven messaging
+
+### Infrastructure Tests
+- Validate Bicep/ARM template syntax
+- Test resource deployment in isolation
+- Verify security configurations
+- Check cost implications
+
+## Certification Focus Areas
+### AZ-204 Core Services (Must Master)
+- ✅ Azure Functions: HTTP triggers, timer triggers, blob triggers
+- ✅ App Service: Deployment slots, configuration, scaling
+- ✅ Static Web Apps: CI/CD integration, custom domains
+- ✅ Blob Storage: Access tiers, lifecycle policies, SAS tokens
+- ✅ Cosmos DB: Consistency levels, partitioning, change feed
+- ✅ Key Vault: Secrets, certificates, access policies
+- ✅ Service Bus: Queues, topics, dead letter queues
+- ✅ Event Grid: Custom topics, event schemas, handlers
+- ✅ API Management: Policies, rate limiting, versioning
+- ✅ Application Insights: Custom telemetry, availability tests
+- ✅ ARM Templates: Functions, conditions, loops, linked templates
+- ✅ Managed Identity: System-assigned, user-assigned
+
+### AZ-400 DevOps Practices (Must Implement)
+- ✅ Multi-stage YAML pipelines with approvals
+- ✅ Infrastructure as Code validation and testing
+- ✅ Automated security scanning (SAST/DAST)
+- ✅ Blue-green and canary deployment patterns
+- ✅ Feature flags and progressive rollouts
+- ✅ Monitoring and alerting automation
+- ✅ Configuration management with drift detection
+- ✅ Disaster recovery and backup automation
+
+## Cost Optimization Rules
+- Always check free tier limits before suggesting services
+- Use consumption-based pricing when possible
+- Implement auto-shutdown for dev environments
+- Use spot instances for non-critical workloads
+- Monitor costs daily and set up budget alerts
+- Document cost implications of each architectural decision
+
+### Environment Configuration
+- Use Azure App Configuration for feature flags
+- Store connection strings in Key Vault
+- Use Managed Identity for authentication
+- Implement configuration refresh patterns
+
+Always prioritize certification-relevant implementations and suggest the most cost-effective Azure service for each requirement.
