@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* Azure Color System */
+  --color-azure-50: #f4f9ff;
+  --color-azure-100: #e1f0ff;
+  --color-azure-200: #c7e0f4;
+  --color-azure-300: #a3d1ff;
+  --color-azure-400: #69b7ff;
+  --color-azure-500: #0078d4;
+  --color-azure-600: #106ebe;
+  --color-azure-700: #005a9e;
+  --color-azure-800: #004b8d;
+  --color-azure-900: #003f75;
+  --color-azure-950: #002952;
+
+  /* Neutral Grays */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
+
+  /* Semantic Colors */
+  --color-success: #13a10e;
+  --color-warning: #ff8c00;
+  --color-error: #d13438;
+  --color-info: #0078d4;
+
+  /* Typography */
+  --font-family-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  /* Custom Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+/* Base styles for better Azure-like appearance */
+body {
+  font-family: var(--font-family-sans);
+  color: var(--color-neutral-900);
+  background-color: var(--color-neutral-50);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utility classes for Azure design patterns */
+.azure-card {
+  @apply bg-white border border-neutral-200 rounded-lg shadow-sm;
+}
+
+.azure-button-primary {
+  @apply bg-azure-500 hover:bg-azure-600 text-white font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:cursor-pointer;
+}
+
+.azure-button-secondary {
+  @apply bg-white hover:bg-neutral-50 text-azure-600 border border-azure-300 font-medium px-4 py-2 rounded-md transition-colors duration-200 hover:cursor-pointer;
+}
+
+.azure-input {
+  @apply border border-neutral-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-azure-500 focus:border-azure-500;
+}
