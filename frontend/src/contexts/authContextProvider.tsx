@@ -55,8 +55,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 // NOTE: Mock authentication service (replace with Azure Functions later)
 const mockAuthService = {
   async login(email: string, password: string): Promise<User> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     if (email === "demo@azure.com" && password === "Testing123") {
       return {
         id: "1",
@@ -64,13 +64,14 @@ const mockAuthService = {
         name: "Azure Developer",
       };
     }
-    
+
     throw new Error("Invalid email or password");
   },
 
   async register(email: string, password: string, name: string): Promise<User> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Registering user:", email, password, name);
+
     return {
       id: Date.now().toString(),
       email,
@@ -79,7 +80,9 @@ const mockAuthService = {
   },
 };
 
-export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
@@ -97,30 +100,30 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const login = async (email: string, password: string) => {
     dispatch({ type: "LOGIN_START" });
-    
+
     try {
       const user = await mockAuthService.login(email, password);
       localStorage.setItem("azure-auth-user", JSON.stringify(user));
       dispatch({ type: "LOGIN_SUCCESS", payload: user });
     } catch (error) {
-      dispatch({ 
-        type: "LOGIN_ERROR", 
-        payload: error instanceof Error ? error.message : "Login failed"
+      dispatch({
+        type: "LOGIN_ERROR",
+        payload: error instanceof Error ? error.message : "Login failed",
       });
     }
   };
 
   const register = async (email: string, password: string, name: string) => {
     dispatch({ type: "LOGIN_START" });
-    
+
     try {
       const user = await mockAuthService.register(email, password, name);
       localStorage.setItem("azure-auth-user", JSON.stringify(user));
       dispatch({ type: "LOGIN_SUCCESS", payload: user });
     } catch (error) {
-      dispatch({ 
-        type: "LOGIN_ERROR", 
-        payload: error instanceof Error ? error.message : "Registration failed"
+      dispatch({
+        type: "LOGIN_ERROR",
+        payload: error instanceof Error ? error.message : "Registration failed",
       });
     }
   };
@@ -135,14 +138,16 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   return (
-    <AuthContext.Provider value={{
-      ...state,
-      login,
-      register,
-      logout,
-      clearError,
-    }}>
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        register,
+        logout,
+        clearError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}; 
+};
