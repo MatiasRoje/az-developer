@@ -141,8 +141,7 @@ async def init_database():
         await db.execute("""
             INSERT OR IGNORE INTO users (email, password) 
             VALUES 
-                ('user@example.com', 'demo@azure.com'),
-                ('test@example.com', 'test123')
+                ('demo@azure.com', 'Testing123')
         """)
         
         await db.commit()

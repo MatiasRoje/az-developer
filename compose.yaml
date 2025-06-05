@@ -1,0 +1,43 @@
+services:
+  auth-service:
+    build: ./backend/containers/auth-service
+    ports:
+      - "8000:8000"
+    environment:
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      ENVIRONMENT: development
+      HOST: 0.0.0.0
+      PORT: 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - microservices
+
+  gateway-service:
+    build: ./backend/containers/gateway
+    ports:
+      - "8080:8080"
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8000
+      ENVIRONMENT: development
+      HOST: 0.0.0.0
+      PORT: 8080
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - microservices
+
+networks:
+  microservices:
+    driver: bridge
