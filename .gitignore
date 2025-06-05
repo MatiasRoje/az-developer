@@ -1,1 +1,5 @@
-.env
+*.env
+*.venv/
+*pycache*
+*.DS_Store
+microservices-python/
