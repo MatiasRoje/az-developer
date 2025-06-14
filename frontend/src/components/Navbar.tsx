@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 
 export const Navbar: React.FC = () => {
@@ -7,9 +8,12 @@ export const Navbar: React.FC = () => {
     <nav className="bg-white shadow-sm border-b border-neutral-200">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-neutral-900">
+          <Link
+            to="/dashboard"
+            className="text-2xl font-bold text-neutral-900 hover:text-azure-600 transition-colors"
+          >
             Azure Developer Certification Suite
-          </h1>
+          </Link>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
               <span className="text-neutral-700 font-medium">{user?.name}</span>
@@ -25,9 +29,12 @@ export const Navbar: React.FC = () => {
     <nav className="bg-white shadow-sm border-b border-neutral-200">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-neutral-900">
+          <Link
+            to="/"
+            className="text-2xl font-bold text-neutral-900 hover:text-azure-600 transition-colors"
+          >
             Azure Developer Certification Suite
-          </h1>
+          </Link>
         </div>
       </div>
     </nav>

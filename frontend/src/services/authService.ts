@@ -4,7 +4,7 @@
  * Connects to FastAPI Gateway -> Auth Service
  */
 
-import type { User, AuthToken } from "../../types/auth";
+import type { User, AuthToken } from "../types/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 

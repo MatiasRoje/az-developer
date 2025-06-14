@@ -13,7 +13,7 @@ export const DashboardPage: React.FC = () => {
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveTab("upload")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "upload"
                 ? "border-azure-500 text-azure-600"
                 : "border-transparent text-neutral-500 hover:text-neutral-700"
@@ -23,7 +23,7 @@ export const DashboardPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab("gallery")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors hover:cursor-pointer ${
               activeTab === "gallery"
                 ? "border-azure-500 text-azure-600"
                 : "border-transparent text-neutral-500 hover:text-neutral-700"

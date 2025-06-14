@@ -3,7 +3,7 @@
  * AZ-204 Security Pattern: Secure client-side token management
  */
 
-import type { AuthToken, User } from "../../types/auth";
+import type { AuthToken, User } from "../types/auth";
 
 const STORAGE_KEYS = {
   USER: "azure-auth-user",

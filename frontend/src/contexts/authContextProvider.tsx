@@ -1,5 +1,6 @@
 import React, { useReducer, useEffect } from "react";
-import type { AuthState, AuthAction } from "../../types/auth";
+import { useNavigate } from "react-router";
+import type { AuthState, AuthAction } from "../types/auth";
 import { AuthContext } from "./authContext";
 import { authService } from "../services/authService";
 import { tokenStorage } from "../utils/tokenStorage";
@@ -67,6 +68,7 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const navigate = useNavigate();
 
   // Check for existing session on app load
   useEffect(() => {
@@ -107,6 +109,9 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
       tokenStorage.storeAuth(user, token);
 
       dispatch({ type: "LOGIN_SUCCESS", payload: { user, token } });
+
+      // Navigate to dashboard after successful login
+      navigate("/dashboard");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Login failed";
@@ -134,6 +139,9 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = () => {
     tokenStorage.clearAuth();
     dispatch({ type: "LOGOUT" });
+
+    // Navigate to home page after logout
+    navigate("/");
   };
 
   const clearError = () => {
