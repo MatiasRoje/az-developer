@@ -7,7 +7,6 @@ from app.core.config import settings
 from app.db.database import init_database
 from app.api.routes import router
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

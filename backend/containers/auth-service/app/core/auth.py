@@ -13,7 +13,7 @@ def create_jwt_token(username: str) -> str:
     """
     Create JWT token with proper expiration and claims
     """
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(timezone.utc)
     payload = {
         "username": username,
         "exp": now + timedelta(days=1),

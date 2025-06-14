@@ -11,12 +11,12 @@ from app.core.auth import create_jwt_token, verify_jwt_token
 from app.db.database import validate_user_credentials
 from app.models.schemas import TokenResponse, TokenValidationResponse
 
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
 # Security schemes
 basic_auth = HTTPBasic()
 bearer_auth = HTTPBearer()
-
-logger = logging.getLogger(__name__)
-router = APIRouter()
 
 
 @router.post("/login", response_model=TokenResponse)
