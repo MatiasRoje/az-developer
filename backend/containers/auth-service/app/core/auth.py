@@ -5,17 +5,19 @@ from fastapi import HTTPException, status
 import logging
 
 from app.core.config import settings
+from app.db.database import UserRecord
 
 logger = logging.getLogger(__name__)
 
 
-def create_jwt_token(username: str) -> str:
+def create_jwt_token(user: UserRecord) -> str:
     """
     Create JWT token with proper expiration and claims
     """
     now = datetime.now(timezone.utc)
     payload = {
-        "username": username,
+        "username": user.username,
+        "email": user.email,
         "exp": now + timedelta(days=1),
         "iat": now,
         "iss": "azure-auth-service",

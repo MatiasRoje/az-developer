@@ -70,7 +70,9 @@ async def get_user_by_email(email: str) -> Optional[UserRecord]:
         )
 
 
-async def validate_user_credentials(username: str, password: str) -> bool:
+async def validate_user_credentials(
+    username: str, password: str
+) -> dict[str, bool | UserRecord | None]:
     """
     Validate user credentials against database
     """
@@ -79,9 +81,9 @@ async def validate_user_credentials(username: str, password: str) -> bool:
 
         if user and user.password == password:
             # TODO: In production, use bcrypt.checkpw (password.encode('utf-8'), user.password)
-            return True
+            return {"is_valid": True, "user": user}
 
-        return False
+        return {"is_valid": False, "user": None}
 
     except Exception as e:
         logger.error(f"User validation error: {e}")

@@ -1,9 +1,12 @@
 import React, { useReducer, useEffect } from "react";
-import type { AuthState, AuthAction, User } from "../../types/auth";
+import type { AuthState, AuthAction } from "../../types/auth";
 import { AuthContext } from "./authContext";
+import { authService } from "../services/authService";
+import { tokenStorage } from "../utils/tokenStorage";
 
 const initialState: AuthState = {
   user: null,
+  token: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -21,7 +24,8 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case "LOGIN_SUCCESS":
       return {
         ...state,
-        user: action.payload,
+        user: action.payload.user,
+        token: action.payload.token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -30,14 +34,21 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         user: null,
+        token: null,
         isAuthenticated: false,
         isLoading: false,
         error: action.payload,
+      };
+    case "TOKEN_REFRESH":
+      return {
+        ...state,
+        token: action.token,
       };
     case "LOGOUT":
       return {
         ...state,
         user: null,
+        token: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
@@ -52,84 +63,76 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
-// NOTE: Mock authentication service (replace with Azure Functions later)
-const mockAuthService = {
-  async login(email: string, password: string): Promise<User> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (email === "demo@azure.com" && password === "Testing123") {
-      return {
-        id: "1",
-        email: "demo@azure.com",
-        name: "Azure Developer",
-      };
-    }
-
-    throw new Error("Invalid email or password");
-  },
-
-  async register(email: string, password: string, name: string): Promise<User> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Registering user:", email, password, name);
-
-    return {
-      id: Date.now().toString(),
-      email,
-      name,
-    };
-  },
-};
-
 export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Check for existing session on app load
   useEffect(() => {
-    const savedUser = localStorage.getItem("azure-auth-user");
-    if (savedUser) {
+    const initializeAuth = async () => {
       try {
-        const user = JSON.parse(savedUser);
-        dispatch({ type: "LOGIN_SUCCESS", payload: user });
+        const user = tokenStorage.getUser();
+        const token = tokenStorage.getToken();
+
+        if (user && token && tokenStorage.isSessionValid()) {
+          // Check if token is still valid with backend
+          const isValid = await authService.validateToken(token.access_token);
+
+          if (isValid && !authService.isTokenExpired(token)) {
+            dispatch({
+              type: "LOGIN_SUCCESS",
+              payload: { user, token },
+            });
+          } else {
+            // Token expired or invalid, clear storage
+            console.log("Token expired or invalid");
+          }
+        }
       } catch (error) {
-        console.error("Error parsing saved user:", error);
-        localStorage.removeItem("azure-auth-user");
+        console.error("Error initializing auth:", error);
       }
-    }
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     dispatch({ type: "LOGIN_START" });
 
     try {
-      const user = await mockAuthService.login(email, password);
-      localStorage.setItem("azure-auth-user", JSON.stringify(user));
-      dispatch({ type: "LOGIN_SUCCESS", payload: user });
+      const { user, token } = await authService.login(email, password);
+
+      // Store auth data securely
+      tokenStorage.storeAuth(user, token);
+
+      dispatch({ type: "LOGIN_SUCCESS", payload: { user, token } });
     } catch (error) {
-      dispatch({
-        type: "LOGIN_ERROR",
-        payload: error instanceof Error ? error.message : "Login failed",
-      });
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
+      dispatch({ type: "LOGIN_ERROR", payload: errorMessage });
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
-    dispatch({ type: "LOGIN_START" });
+  // TODO: Implement registration
+  // const register = async (email: string, password: string, name: string) => {
+  //   dispatch({ type: "LOGIN_START" });
 
-    try {
-      const user = await mockAuthService.register(email, password, name);
-      localStorage.setItem("azure-auth-user", JSON.stringify(user));
-      dispatch({ type: "LOGIN_SUCCESS", payload: user });
-    } catch (error) {
-      dispatch({
-        type: "LOGIN_ERROR",
-        payload: error instanceof Error ? error.message : "Registration failed",
-      });
-    }
-  };
+  //   try {
+  //     const { user, token } = await authService.register(email, password, name);
+
+  //     tokenStorage.storeAuth(user, tokens);
+
+  //     dispatch({ type: "LOGIN_SUCCESS", payload: { user, tokens } });
+  //   } catch (error) {
+  //     const errorMessage =
+  //       error instanceof Error ? error.message : "Registration failed";
+  //     dispatch({ type: "LOGIN_ERROR", payload: errorMessage });
+  //   }
+  // };
 
   const logout = () => {
-    localStorage.removeItem("azure-auth-user");
+    tokenStorage.clearAuth();
     dispatch({ type: "LOGOUT" });
   };
 
@@ -142,7 +145,6 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         ...state,
         login,
-        register,
         logout,
         clearError,
       }}

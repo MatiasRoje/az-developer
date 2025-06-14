@@ -32,19 +32,19 @@ async def login(
             detail="Username and password are required",
         )
 
-    is_valid = await validate_user_credentials(
+    result = await validate_user_credentials(
         credentials.username, credentials.password
     )
 
-    if not is_valid:
+    if not result["is_valid"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    access_token = create_jwt_token(username=credentials.username)
-    logger.info(f"User {credentials.username} authenticated successfully")
+    access_token = create_jwt_token(user=result["user"])
+    logger.info(f"User {result['user'].email} authenticated successfully")
 
     return TokenResponse(
         access_token=access_token, token_type="bearer", expires_in=86400

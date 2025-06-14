@@ -1,1 +1,1 @@
-Az-Developer Frontend.
+Az-Developer Frontend
