@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useOptimistic, useTransition } from "react";
 import { useAuth } from "../hooks/useAuth";
 
 type AuthFormProps = {
@@ -7,21 +7,45 @@ type AuthFormProps = {
 };
 
 export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const { login, isLoading, error, clearError } = useAuth();
+  const { login, error, clearError } = useAuth();
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Optimistic state for immediate UI feedback
+  const [optimisticState, setOptimisticState] = useOptimistic(
+    { isSubmitting: false },
+    (currentState, newState: { isSubmitting?: boolean }) => ({
+      ...currentState,
+      ...newState,
+    })
+  );
+
+  const handleSubmit = async (formData: FormData) => {
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
     clearError();
 
-    if (mode === "login") {
-      await login(email, password);
-    } else {
-      // await register(email, password, name);
-    }
+    // Start optimistic update
+    setOptimisticState({ isSubmitting: true });
+
+    // Start transition for the actual login/register
+    startTransition(async () => {
+      try {
+        if (mode === "login") {
+          await login(email, password);
+        } else {
+          // await register(email, password, name);
+        }
+        // Success state will be handled by navigation in auth context
+      } catch (error) {
+        // Error handling is managed by the auth context
+        console.error("Error logging in", error);
+        setOptimisticState({ isSubmitting: false });
+      }
+    });
   };
+
+  const isLoading = isPending || optimisticState.isSubmitting;
 
   return (
     <div className="azure-card max-w-md mx-auto p-8">
@@ -42,7 +66,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form action={handleSubmit} className="space-y-6">
         {mode === "register" && (
           <div>
             <label
@@ -54,10 +78,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
             <input
               type="text"
               id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="name"
               className="azure-input w-full"
               required
+              disabled={isLoading}
               placeholder="Enter your full name"
             />
           </div>
@@ -73,10 +97,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
           <input
             type="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
             className="azure-input w-full"
             required
+            disabled={isLoading}
             placeholder="Enter your email"
           />
         </div>
@@ -91,10 +115,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
           <input
             type="password"
             id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
             className="azure-input w-full"
             required
+            disabled={isLoading}
             placeholder="Enter your password"
           />
         </div>
@@ -143,7 +167,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
             : "Already have an account? "}
           <button
             onClick={onToggleMode}
-            className="text-azure-600 hover:text-azure-700 font-medium hover:cursor-pointer"
+            disabled={isLoading}
+            className="text-azure-600 hover:text-azure-700 font-medium hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {mode === "login" ? "Sign up" : "Sign in"}
           </button>

@@ -73,3 +73,14 @@ body {
 .azure-input {
   @apply border border-neutral-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-azure-500 focus:border-azure-500;
 }
+
+/* Spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
