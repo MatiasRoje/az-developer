@@ -34,10 +34,9 @@ export class AuthService {
     password: string
   ): Promise<{ user: User; token: AuthToken }> {
     try {
-      // Create Basic Auth header
       const credentials = btoa(`${email}:${password}`);
 
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth-service/login`, {
         method: "POST",
         headers: {
           Authorization: `Basic ${credentials}`,
@@ -56,8 +55,6 @@ export class AuthService {
       }
 
       const tokenData = await response.json();
-
-      // Calculate expiration timestamp
       const expires_at = Date.now() + tokenData.expires_in * 1000;
 
       const token: AuthToken = {
@@ -67,10 +64,7 @@ export class AuthService {
         expires_at,
       };
 
-      // Extract user info from JWT payload (for demo purposes)
-      // AZ-204 Note: In production, validate JWT signature
       const user = this.extractUserFromToken(tokenData.access_token, email);
-
       return { user, token };
     } catch (error) {
       if (error instanceof AuthServiceError) {
@@ -88,13 +82,16 @@ export class AuthService {
    */
   async validateToken(token: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL}/validate`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/auth-service/validate`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       return response.ok;
     } catch (error) {

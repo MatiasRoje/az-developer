@@ -63,11 +63,3 @@ app.add_middleware(
         "Content-Type",
     ],  # Important for SSE and downloads
 )
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "app.main:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        reload=settings.ENVIRONMENT == "development",
-    )

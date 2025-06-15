@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import datetime
 
 
 class UserCredentials(BaseModel):
@@ -20,10 +21,10 @@ class TokenValidationResponse(BaseModel):
 
 
 class UserRecord(BaseModel):
-    """User data model matching SQLite schema"""
+    """User data model for PostgreSQL"""
 
     id: Optional[int] = None
     username: str
     email: str
     password: str  # In production: hash with bcrypt
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None  # Changed from str to datetime

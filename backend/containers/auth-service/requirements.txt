@@ -3,3 +3,4 @@ aiosqlite
 fastapi
 uvicorn
 pydantic[email]
+asyncpg

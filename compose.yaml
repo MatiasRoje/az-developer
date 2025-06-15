@@ -1,6 +1,27 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: az-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: azure_dev
+      POSTGRES_USER: azuredev
+      POSTGRES_PASSWORD: AzureDev123!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U azuredev -d azure_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - microservices
+
   auth-service:
     build: ./backend/containers/auth-service
+    container_name: az-auth-service
     ports:
       - "8000:8000"
     environment:
@@ -8,8 +29,12 @@ services:
       ENVIRONMENT: development
       HOST: 0.0.0.0
       PORT: 8000
+      DATABASE_URL: postgresql://azuredev:AzureDev123!@postgres:5432/azure_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -19,6 +44,7 @@ services:
 
   gateway-service:
     build: ./backend/containers/gateway
+    container_name: az-gateway
     ports:
       - "8080:8080"
     environment:
@@ -30,13 +56,17 @@ services:
       auth-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
     networks:
       - microservices
+
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
   microservices:
