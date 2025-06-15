@@ -19,6 +19,27 @@ services:
     networks:
       - microservices
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: az-rabbitmq
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: azuredev
+      RABBITMQ_DEFAULT_PASS: AzureDev123!
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - microservices
+
   auth-service:
     build: ./backend/containers/auth-service
     container_name: az-auth-service
@@ -52,8 +73,11 @@ services:
       ENVIRONMENT: development
       HOST: 0.0.0.0
       PORT: 8080
+      RABBITMQ_URL: amqp://azuredev:AzureDev123!@rabbitmq:5672/
     depends_on:
       auth-service:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
@@ -93,6 +117,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  rabbitmq_data:
     driver: local
 
 networks:

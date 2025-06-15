@@ -1,19 +1,39 @@
 import logging
 import uvicorn
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.routes import router
+from app.services.rabbitmq_service import rabbitmq_service
 from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifecycle management
+    Initialize RabbitMQ connection on startup
+    """
+    # Startup
+    await rabbitmq_service.connect()
+    logger.info("Gateway services initialized")
+    
+    yield
+    
+    # Shutdown
+    await rabbitmq_service.close()
+    logger.info("Gateway services shutdown")
+
+
 app = FastAPI(
     title="Azure Gateway Microservice",
     description="API Gateway for AZ-204",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
@@ -61,3 +81,4 @@ app.add_middleware(
         "Content-Type",
     ],
 )
+
