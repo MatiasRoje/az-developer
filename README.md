@@ -59,8 +59,15 @@
 
 ```bash
 # 1. Local development
-cd backend && docker-compose up
-cd frontend && npm start
+# Build and start all services (production frontend)
+docker compose up --build
+
+# For development with hot reload
+# Run frontend locally with hot reload
+cd frontend
+npm run dev
+# Run backend services in containers
+docker compose up -d postgres auth-service gateway-service
 
 # 2. Azure adaptation
 az login

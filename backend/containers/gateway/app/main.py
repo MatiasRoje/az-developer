@@ -45,21 +45,19 @@ async def logging_middleware(request: Request, call_next):
 
 app.include_router(router)
 
-# Configure CORS for development
-origins = [
-    "http://localhost:5173",  # Vite dev server
-]
+# Configure CORS origins from environment
+origins = settings.cors_origins_list
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Specify which origins are allowed
-    allow_credentials=True,  # Allow cookies to be included in requests
-    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
     expose_headers=[
         "Content-Disposition",
         "Cache-Control",
         "Content-Type",
-    ],  # Important for SSE and downloads
+    ],
 )
