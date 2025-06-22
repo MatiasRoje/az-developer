@@ -45,13 +45,8 @@ class RabbitMQService:
             "image-upload-queue", durable=True
         )
 
-        self.image_processed_queue = await self.channel.declare_queue(
-            "image-processed-queue", durable=True
-        )
-
         # Bind queues to exchange
         await self.image_upload_queue.bind(self.exchange, "upload")
-        await self.image_processed_queue.bind(self.exchange, "processed")
 
         logger.info("RabbitMQ queues setup completed")
 
