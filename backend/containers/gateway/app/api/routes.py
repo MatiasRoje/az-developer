@@ -69,7 +69,7 @@ async def upload_image_proxy(
         logger.info(f"DEBUG: user_info: {user_info}")
         user_id = user_info.get("id")
         logger.info(f"DEBUG: extracted user_id: {user_id}")
-        
+
         # Validate file type
         if not file.filename:
             raise HTTPException(
@@ -99,7 +99,7 @@ async def upload_image_proxy(
 
         # Upload file to MinIO
         uploaded_key = await minio_service.upload_image(
-            content, f"uploads/{upload_id}", file.content_type
+            content, upload_id, file.content_type
         )
 
         # Publish to RabbitMQ queue

@@ -71,6 +71,18 @@ class RabbitMQConsumer:
                 except Exception as e:
                     logger.error(f"Failed to update image status: {e}")
 
+            finally:
+                # Always delete original object from upload bucket
+                try:
+                    minio_service.client.remove_object(
+                        settings.MINIO_BUCKET_UPLOADS, upload_msg.minio_object_key
+                    )
+                    logger.info(
+                        f"Deleted original object: {upload_msg.minio_object_key}"
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to delete original object: {e}")
+
     async def _create_initial_record(self, upload_msg: ImageUploadMessage):
         """Create initial database record for tracking"""
         # Generate filename for processed image
@@ -108,7 +120,7 @@ class RabbitMQConsumer:
 
             blob_url = await minio_service.upload_file(
                 settings.MINIO_BUCKET_IMAGES,
-                f"images/{upload_msg.upload_id}.webp",
+                f"{upload_msg.upload_id}.webp",
                 f"tmp/{upload_msg.upload_id}.webp",
                 "image/webp",
             )
@@ -133,15 +145,6 @@ class RabbitMQConsumer:
                 os.unlink(f"tmp/{upload_msg.upload_id}")
             if os.path.exists(f"tmp/{upload_msg.upload_id}.webp"):
                 os.unlink(f"tmp/{upload_msg.upload_id}.webp")
-
-            # Delete original object from upload bucket
-            try:
-                minio_service.client.remove_object(
-                    settings.MINIO_BUCKET_UPLOADS, upload_msg.minio_object_key
-                )
-                logger.info(f"Deleted original object: {upload_msg.minio_object_key}")
-            except Exception as e:
-                logger.error(f"Failed to delete original object: {e}")
 
     async def close(self):
         """Close RabbitMQ connection"""

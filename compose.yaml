@@ -69,7 +69,7 @@ services:
       mc alias set minio http://minio:9000 azuredev AzureDev123!;
       mc mb minio/images --ignore-existing;
       mc mb minio/uploads --ignore-existing;
-      mc policy set public minio/images;
+      mc anonymous set public minio/images;
       echo 'MinIO buckets created successfully';
       "
     networks:
