@@ -30,7 +30,8 @@ class MinIOService:
             )
 
             # Generate URL
-            url = f"http://{settings.MINIO_ENDPOINT}/{bucket_name}/{object_name}"
+            # NOTE: Harcoded as the MINIO_ENDPOINT is only working in the docker network and it's not accessible from the browser
+            url = f"http://localhost:9000/{bucket_name}/{object_name}"
             logger.info(f"Uploaded file to MinIO: {url}")
             return url
 

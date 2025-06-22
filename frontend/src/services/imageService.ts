@@ -21,6 +21,7 @@ export interface UserImage {
   width?: number;
   height?: number;
   file_size: number;
+  processed_size?: number;
   upload_status: "processing" | "completed" | "failed";
   created_at: string;
 }
