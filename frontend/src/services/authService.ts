@@ -134,7 +134,7 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split(".")[1]));
       console.log("payload", payload);
       return {
-        id: payload.sub || payload.email || email,
+        id: payload.id || payload.email || email,
         email: payload.email || email,
         name: payload.username || email.split("@")[0],
       };
