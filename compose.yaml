@@ -15,7 +15,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
     networks:
       - microservices
 
@@ -36,7 +35,43 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+    networks:
+      - microservices
+
+  minio:
+    image: minio/minio:latest
+    container_name: az-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: azuredev
+      MINIO_ROOT_PASSWORD: AzureDev123!
+    ports:
+      - "9000:9000" # API port
+      - "9001:9001" # Console UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - microservices
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: az-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set minio http://minio:9000 azuredev AzureDev123!;
+      mc mb minio/images --ignore-existing;
+      mc mb minio/uploads --ignore-existing;
+      mc policy set public minio/images;
+      echo 'MinIO buckets created successfully';
+      "
     networks:
       - microservices
 
@@ -59,32 +94,73 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
     networks:
       - microservices
 
-  gateway-service:
+  image-service:
+    build: ./backend/containers/image-service
+    container_name: az-image-service
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8001
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql://azuredev:AzureDev123!@postgres:5432/azure_dev
+      RABBITMQ_URL: amqp://azuredev:AzureDev123!@rabbitmq:5672/
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: azuredev
+      MINIO_SECRET_KEY: AzureDev123!
+      MINIO_BUCKET_IMAGES: images
+      MINIO_BUCKET_UPLOADS: uploads
+      MAX_FILE_SIZE: 10485760 # 10MB
+      WEBP_QUALITY: 80
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - microservices
+
+  gateway:
     build: ./backend/containers/gateway
     container_name: az-gateway
     ports:
       - "8080:8080"
     environment:
       AUTH_SERVICE_URL: http://auth-service:8000
+      IMAGE_SERVICE_URL: http://image-service:8001
       ENVIRONMENT: development
       HOST: 0.0.0.0
       PORT: 8080
       RABBITMQ_URL: amqp://azuredev:AzureDev123!@rabbitmq:5672/
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: azuredev
+      MINIO_SECRET_KEY: AzureDev123!
+      MINIO_BUCKET_UPLOADS: uploads
+      MAX_FILE_SIZE: 10485760 # 10MB
     depends_on:
       auth-service:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      image-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
     networks:
       - microservices
 
@@ -96,7 +172,7 @@ services:
     environment:
       VITE_API_URL: http://localhost:8080
     depends_on:
-      gateway-service:
+      gateway:
         condition: service_healthy
     healthcheck:
       test:
@@ -111,7 +187,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
     networks:
       - microservices
 
@@ -119,6 +194,8 @@ volumes:
   postgres_data:
     driver: local
   rabbitmq_data:
+    driver: local
+  minio_data:
     driver: local
 
 networks:

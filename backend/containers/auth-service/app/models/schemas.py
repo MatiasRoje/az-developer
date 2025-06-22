@@ -16,6 +16,8 @@ class TokenResponse(BaseModel):
 
 class TokenValidationResponse(BaseModel):
     username: str
+    id: int
+    email: str
     exp: int
     iat: int
 

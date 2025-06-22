@@ -60,7 +60,7 @@ async def validate_token(
     """
     payload = verify_jwt_token(token.credentials)
     return TokenValidationResponse(
-        username=payload["username"], exp=payload["exp"], iat=payload["iat"]
+        username=payload["username"], id=payload["id"], email=payload["email"], exp=payload["exp"], iat=payload["iat"]
     )
 
 

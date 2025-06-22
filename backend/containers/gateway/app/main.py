@@ -19,14 +19,22 @@ async def lifespan(app: FastAPI):
     Initialize RabbitMQ connection on startup
     """
     # Startup
-    await rabbitmq_service.connect()
-    logger.info("Gateway services initialized")
-    
+    try:
+        await rabbitmq_service.connect()
+        logger.info("RabbitMQ service connected")
+        logger.info("Gateway startup completed successfully")
+    except Exception as e:
+        logger.error(f"Failed to start gateway: {e}")
+        raise
+
     yield
-    
+
     # Shutdown
-    await rabbitmq_service.close()
-    logger.info("Gateway services shutdown")
+    try:
+        await rabbitmq_service.close()
+        logger.info("Application shutdown completed")
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")
 
 
 app = FastAPI(
@@ -66,7 +74,7 @@ async def logging_middleware(request: Request, call_next):
 app.include_router(router)
 
 # Configure CORS origins from environment
-origins = settings.cors_origins_list
+origins = settings.CORS_ORIGINS
 
 # Add CORS middleware
 app.add_middleware(
@@ -82,3 +90,10 @@ app.add_middleware(
     ],
 )
 
+if __name__ == "__main__":
+    uvicorn.run(
+        "app.main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.ENVIRONMENT == "development",
+    )

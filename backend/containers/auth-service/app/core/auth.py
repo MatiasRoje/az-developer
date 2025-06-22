@@ -16,6 +16,7 @@ def create_jwt_token(user: UserRecord) -> str:
     """
     now = datetime.now(timezone.utc)
     payload = {
+        "id": user.id,
         "username": user.username,
         "email": user.email,
         "exp": now + timedelta(days=1),

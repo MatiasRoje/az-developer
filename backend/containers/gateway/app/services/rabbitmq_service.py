@@ -21,10 +21,10 @@ class RabbitMQService:
         try:
             self.connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
             self.channel = await self.connection.channel()
-            
+
             # Declare exchanges and queues
             await self._setup_queues()
-            
+
             logger.info("Connected to RabbitMQ successfully")
         except Exception as e:
             logger.error(f"Failed to connect to RabbitMQ: {e}")
@@ -37,26 +37,22 @@ class RabbitMQService:
         """
         # Declare exchange
         self.exchange = await self.channel.declare_exchange(
-            "image-processing",
-            aio_pika.ExchangeType.DIRECT,
-            durable=True
+            "image-processing", aio_pika.ExchangeType.DIRECT, durable=True
         )
-        
+
         # Declare queues
         self.image_upload_queue = await self.channel.declare_queue(
-            "image-upload-queue",
-            durable=True
+            "image-upload-queue", durable=True
         )
-        
+
         self.image_processed_queue = await self.channel.declare_queue(
-            "image-processed-queue", 
-            durable=True
+            "image-processed-queue", durable=True
         )
-        
+
         # Bind queues to exchange
         await self.image_upload_queue.bind(self.exchange, "upload")
         await self.image_processed_queue.bind(self.exchange, "processed")
-        
+
         logger.info("RabbitMQ queues setup completed")
 
     async def publish_image_upload_message(self, message_data: Dict[str, Any]):
@@ -68,16 +64,15 @@ class RabbitMQService:
             message = Message(
                 json.dumps(message_data).encode(),
                 content_type="application/json",
-                delivery_mode=aio_pika.DeliveryMode.PERSISTENT
+                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
             )
-            
-            await self.exchange.publish(
-                message,
-                routing_key="upload"
+
+            await self.exchange.publish(message, routing_key="upload")
+
+            logger.info(
+                f"Published image upload message: {message_data.get('upload_id')}"
             )
-            
-            logger.info(f"Published image upload message: {message_data.get('upload_id')}")
-            
+
         except Exception as e:
             logger.error(f"Failed to publish message: {e}")
             raise

@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+asyncpg
+Pillow
+aio_pika
+minio
